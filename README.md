@@ -18,3 +18,4 @@ Palmpass is a Python project that utilizes OpenCV, and Tkinter to create a secur
 
 ```shell
 git clone https://github.com/yourusername/palmpass.git
+```
