@@ -10,7 +10,7 @@ Palmpass is a Python project that utilizes OpenCV, and Tkinter to create a secur
 
 ## Screenshots
 
-![Palmpass Demo](screenshots/palmpass_demo.png)
+![Palmpass Demo](pp.png)
 
 ## Installation
 
