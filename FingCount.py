@@ -4,73 +4,95 @@ import os
 import HandTrackingModule as htm
 from collections import deque
 import time
-
-wCam,hCam = 640,480
-
-cap = cv2.VideoCapture(0)
-cap.set(3,wCam)
-cap.set(4,hCam)
-
-folderPath = "FingerImage"
-myList = os.listdir(folderPath)
-#print(myList)
-overlayList=[]
-for imgPath in myList:
-    image = cv2.imread(f'{folderPath}/{imgPath}')
-    #print(f'{folderPath}/{imgPath}')
-    overlayList.append(image)
+import sys
+import tkinter as tk
 
 
-assert(len(overlayList)==6)#number of images
 
-detector = htm.handDetector(detectionCon = 1)
+def main():
+    wCam,hCam = 640,480
 
-tipIds=[4,8,12,16,20]#thumb,index,middle,ring,pinky
+    cap = cv2.VideoCapture(0)
+    cap.set(3,wCam)
+    cap.set(4,hCam)
 
-queue = deque(maxlen=20)
-passw = []
-initial=20
+    folderPath = "FingerImage"
+    myList = os.listdir(folderPath)
+    #print(myList)
+    overlayList=[]
+    for imgPath in myList:
+        image = cv2.imread(f'{folderPath}/{imgPath}')
+        #print(f'{folderPath}/{imgPath}')
+        overlayList.append(image)
 
-while True:
 
+    assert(len(overlayList)==6)#number of images
+
+    detector = htm.handDetector(detectionCon = 1)
+
+    tipIds=[4,8,12,16,20]#thumb,index,middle,ring,pinky
+
+    queue = deque(maxlen=20)
+    passw = []
+    initial=20
     success, img = cap.read()
-    img = detector.findHands(img)
-    numList = detector.findPosition(img,draw=False)
+    password = input("Enter desired padlock code: ")
+    save= input("What is your secret? ")
+
+    while True:
+
+        success, img = cap.read()
+        img = detector.findHands(img)
+        numList = detector.findPosition(img,draw=False)
 
 
-    #print(numList)
-    if len(numList)!=0:
-        fingers=[]
+        #print(numList)
+        if len(numList)!=0:
+            fingers=[]
 
-        #thumb
-        if numList[tipIds[0]][1]<numList[tipIds[0]-1][1]:#index finger up, more minus = more dramatic, less = small
-                fingers.append(1)
-        else:
-                fingers.append(0)
-        
-        #rest of hand
-        for id in range(1,5):
-            if numList[tipIds[id]][2]<numList[tipIds[id]-2][2]:#index finger up, more minus = more dramatic, less = small
-                fingers.append(1)
+            #thumb
+            if numList[tipIds[0]][1]<numList[tipIds[0]-1][1]:#index finger up, more minus = more dramatic, less = small
+                    fingers.append(1)
             else:
-                fingers.append(0)
-        #print(fingers)
-        totalFingers=fingers.count(1)
-        queue.append(totalFingers)
-        if initial>=0:
-             initial-=1
+                    fingers.append(0)
+            
+            #rest of hand
+            for id in range(1,5):
+                if numList[tipIds[id]][2]<numList[tipIds[id]-2][2]:#index finger up, more minus = more dramatic, less = small
+                    fingers.append(1)
+                else:
+                    fingers.append(0)
+            #print(fingers)
+            totalFingers=fingers.count(1)
+            queue.append(totalFingers)
+            if initial>=0:
+                initial-=1
 
-        #check value
-        equal = all(element==queue[0] for element in queue)
-        if equal and initial<0:
-        #   display hand image
-            h,w,c = overlayList[totalFingers-1].shape
-            img[0:h,0:w] = overlayList[totalFingers-1]
-            #print(totalFingers)
-            if totalFingers not in passw:
-                passw.append(totalFingers)
-    else:
-         passw.clear()
-    print(passw)
-    cv2.imshow("Image",img)
-    cv2.waitKey(1)
+            #check value
+            equal = all(element==queue[0] for element in queue)
+            if equal and initial<0:
+            #   display hand image
+                h,w,c = overlayList[totalFingers-1].shape
+                img[0:h,0:w] = overlayList[totalFingers-1]
+                #print(totalFingers)
+                if totalFingers not in passw:
+                    passw.append(totalFingers)
+        else:
+            passw.clear()
+        if(passw==list(map(int,password))):
+            break
+        cv2.imshow("Image",img)
+        cv2.waitKey(1)
+
+    cv2.destroyAllWindows()
+
+    window = tk.Tk()
+
+
+    label=tk.Label(window,text=save)
+    label.pack()
+    window.mainloop()
+
+
+if __name__ == "__main__":
+    main()
