@@ -33,8 +33,11 @@ python palmpass.py
 
 4. Usage
 -Enter your custom passlock(1-5)
+
 -Enter text you wish to be locked
+
 -Place hand in front of camera and raise desired number of fingers
+
 -If finger count matched predefined passlock, encrypted text will be displayed on the screen using Tkinter
 
 ## Goals
